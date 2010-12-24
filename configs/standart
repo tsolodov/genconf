@@ -1,0 +1,65 @@
+disable stp
+
+enable sntp
+config time_zone operator + hour 3 min 0
+config sntp primary _SWntpdserv1_ secondary _SWntpdserv2_ poll-interval 720
+config dst repeating s_week last s_day sun s_mth 3 s_time 2:0 e_week last e_day sun e_mth 10 e_time 2:0 offset 60
+
+
+
+disable dhcp_relay
+disable dhcp_local_relay
+config dhcp_local_relay option_82 ports 1-28 policy keep
+
+config traffic control  1-24 broadcast enable multicast enable unicast disable action drop
+config traffic trap both
+
+enable loopdetect
+config loopdetect recover_timer 3600
+config loopdetect interval 10
+config loopdetect port 1-24 state enabled
+
+config traffic_segmentation 1-24 forward_list 25-28
+config traffic_segmentation 25-28 forward_list 1-28
+
+config mac_notification interval 300 historysize 128
+enable mac_notification
+config mac_notification ports 1-24 enable
+
+enable flood_fdb
+config flood_fdb log enable
+
+
+enable dos_prevention trap_log
+config dos_prevention dos_type land_attack action drop state enable
+config dos_prevention dos_type blat_attack action drop state enable
+config dos_prevention dos_type smurf_attack action drop state enable
+config dos_prevention dos_type tcp_null_scan action drop state enable
+config dos_prevention dos_type tcp_xmascan action drop state enable
+config dos_prevention dos_type tcp_synfin action drop state enable
+config dos_prevention dos_type tcp_syn_srcport_less_1024 action drop state enable
+
+
+config filter dhcp_server ports 1-24 state enable
+config filter dhcp_server trap_log enable
+
+
+enable lldp
+config lldp message_tx_interval 30
+config lldp tx_delay 2
+config lldp message_tx_hold_multiplier 4
+config lldp reinit_delay 2
+config lldp notification_interval 5
+config lldp forward_message enable
+config lldp ports 1-24 notification disable
+config lldp ports 1-24 admin_status disable
+config lldp ports 25-28 notification enable
+config lldp ports 25-28 admin_status tx_and_rx
+config lldp ports 25-28 basic_tlvs port_description system_name system_description system_capabilities enable
+config lldp ports 25-28 dot1_tlv_pvid enable
+config lldp ports 25-28 dot1_tlv_vlan_name vlanid 1-4094 enable
+config lldp ports 25-28 dot1_tlv_protocol_identity eapol enable
+config lldp ports 25-28 dot1_tlv_protocol_identity lacp enable
+config lldp ports 25-28 dot1_tlv_protocol_identity gvrp enable
+config lldp ports 25-28 dot1_tlv_protocol_identity stp enable
+

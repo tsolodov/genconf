@@ -1,0 +1,11 @@
+
+config vlan default delete 1-28
+config vlan default add untagged 25-28
+create vlan Control tag _SWcontroltag_
+config vlan Control add tagged 25-28
+create vlan Users tag _UTAG
+config vlan Users add tagged 25-28
+config vlan Users add untagged 1-24
+
+
+

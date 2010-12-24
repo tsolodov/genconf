@@ -1,0 +1,18 @@
+
+enable snmp traps
+enable snmp authenticate traps
+config snmp system_name _NAME
+config snmp system_location _LOCATION
+delete snmp community public
+delete snmp community private
+delete snmp user initial
+delete snmp group initial
+delete snmp view restricted all
+delete snmp group public
+delete snmp group private
+delete snmp group ReadGroup
+delete snmp group WriteGroup
+create snmp community _SWrcomm_ view CommunityView read_only
+create snmp community _SWrwcomm_ view CommunityView read_write
+create snmp host _SWsnmpserv_ v2c _SWrcomm_
+

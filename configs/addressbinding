@@ -1,0 +1,7 @@
+
+enable address_binding trap_log                                                                                                                             
+enable address_binding dhcp_snoop                                                                                                                           
+config address_binding dhcp_snoop max_entry ports 1-24 limit 5                                                                                              
+config address_binding ip_mac ports 1-24 state enable strict allow_zeroip enable forward_dhcppkt enable mode acl                                            
+config address_binding ip_mac ports 25-28 state disable allow_zeroip disable forward_dhcppkt enable                                                         
+

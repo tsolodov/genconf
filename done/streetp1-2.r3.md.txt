@@ -1,0 +1,176 @@
+
+enable snmp traps
+enable snmp authenticate traps
+config snmp system_name streetp1-2
+config snmp system_location Russia NN
+delete snmp community public
+delete snmp community private
+delete snmp user initial
+delete snmp group initial
+delete snmp view restricted all
+delete snmp group public
+delete snmp group private
+delete snmp group ReadGroup
+delete snmp group WriteGroup
+create snmp community readonlycommunity view CommunityView read_only
+create snmp community readwritecommunity view CommunityView read_write
+create snmp host <IP TRAP SERVERS> v2c readonlycommunity
+
+
+config vlan default delete 1-28
+config vlan default add untagged 25-28
+create vlan Control tag 379
+config vlan Control add tagged 25-28
+create vlan Users tag 1092
+config vlan Users add tagged 25-28
+config vlan Users add untagged 1-24
+
+
+
+
+config ipif System vlan Control ipaddress 172.22.133.5/24 state enable
+create iproute default 172.22.149.1
+
+
+disable stp
+
+enable sntp
+config time_zone operator + hour 3 min 0
+config sntp primary <NTP SERVER 1> secondary <NTP SERVER 2> poll-interval 720
+config dst repeating s_week last s_day sun s_mth 3 s_time 2:0 e_week last e_day sun e_mth 10 e_time 2:0 offset 60
+
+
+
+disable dhcp_relay
+disable dhcp_local_relay
+config dhcp_local_relay option_82 ports 1-28 policy keep
+
+config traffic control  1-24 broadcast enable multicast enable unicast disable action drop
+config traffic trap both
+
+enable loopdetect
+config loopdetect recover_timer 3600
+config loopdetect interval 10
+config loopdetect port 1-24 state enabled
+
+config traffic_segmentation 1-24 forward_list 25-28
+config traffic_segmentation 25-28 forward_list 1-28
+
+config mac_notification interval 300 historysize 128
+enable mac_notification
+config mac_notification ports 1-24 enable
+
+enable flood_fdb
+config flood_fdb log enable
+
+
+enable dos_prevention trap_log
+config dos_prevention dos_type land_attack action drop state enable
+config dos_prevention dos_type blat_attack action drop state enable
+config dos_prevention dos_type smurf_attack action drop state enable
+config dos_prevention dos_type tcp_null_scan action drop state enable
+config dos_prevention dos_type tcp_xmascan action drop state enable
+config dos_prevention dos_type tcp_synfin action drop state enable
+config dos_prevention dos_type tcp_syn_srcport_less_1024 action drop state enable
+
+
+config filter dhcp_server ports 1-24 state enable
+config filter dhcp_server trap_log enable
+
+
+enable lldp
+config lldp message_tx_interval 30
+config lldp tx_delay 2
+config lldp message_tx_hold_multiplier 4
+config lldp reinit_delay 2
+config lldp notification_interval 5
+config lldp forward_message enable
+config lldp ports 1-24 notification disable
+config lldp ports 1-24 admin_status disable
+config lldp ports 25-28 notification enable
+config lldp ports 25-28 admin_status tx_and_rx
+config lldp ports 25-28 basic_tlvs port_description system_name system_description system_capabilities enable
+config lldp ports 25-28 dot1_tlv_pvid enable
+config lldp ports 25-28 dot1_tlv_vlan_name vlanid 1-4094 enable
+config lldp ports 25-28 dot1_tlv_protocol_identity eapol enable
+config lldp ports 25-28 dot1_tlv_protocol_identity lacp enable
+config lldp ports 25-28 dot1_tlv_protocol_identity gvrp enable
+config lldp ports 25-28 dot1_tlv_protocol_identity stp enable
+
+
+create authen server_host 1.1.1.1 protocol radius port 1812 key "1111" timeout 5 retransmit 2
+config authen server_group radius delete server_host 1.1.1.1 protocol radius
+create authen server_host 2.2.2.2 protocol radius port 1812 key "2222" timeout 5 retransmit 2
+config authen server_group radius delete server_host 2.2.2.2 protocol radius
+config authen server_group radius add server_host 1.1.1.1 protocol radius
+config authen server_group radius add server_host 2.2.2.2 protocol radius
+config authen_login default method local
+create authen_login method_list_name RADIUS
+config authen_login method_list_name RADIUS method radius local
+config authen_enable default method  local_enable
+config authen application console login default
+config authen application console enable default
+config authen application telnet login method_list_name RADIUS
+config authen application telnet enable default
+config authen application ssh login method_list_name RADIUS
+config authen application ssh enable default
+config authen application http login method_list_name RADIUS
+config authen application http enable default
+config authen parameter response_timeout 30
+config authen parameter attempt 3
+enable authen_policy
+
+
+
+create account admin admin
+password_for_user
+password_for_user
+
+
+config admin local_enable
+password
+password
+
+
+config stp version rstp
+config stp priority 40960 instance_id 0
+config stp hellotime 2
+config stp lbd enable
+config stp lbd_recover_timer 60
+config stp ports 1-24 externalCost auto edge false p2p auto state disable
+config stp ports 1-24 lbd enable
+config stp mst_ports 1-28 instance_id 0 internalCost auto priority 128
+config stp ports 1-28 fbpdu disable
+config stp ports 25-28 externalCost auto edge false p2p auto state enable
+enable stp
+
+
+enable address_binding trap_log                                                                                                                             
+enable address_binding dhcp_snoop                                                                                                                           
+config address_binding dhcp_snoop max_entry ports 1-24 limit 5                                                                                              
+config address_binding ip_mac ports 1-24 state enable strict allow_zeroip enable forward_dhcppkt enable mode acl                                            
+config address_binding ip_mac ports 25-28 state disable allow_zeroip disable forward_dhcppkt enable                                                         
+
+
+create access_profile  ip  destination_ip 255.255.255.255 tcp dst_port 0xFFFF    profile_id 1
+config access_profile profile_id 1  add access_id 1  ip  destination_ip 1.1.1.1  tcp dst_port 80        port 1-24 permit 
+
+
+create access_profile  ip  destination_ip 255.255.255.255 udp dst_port 0xFFFF    profile_id 2
+config access_profile profile_id 2  add access_id 1  ip  destination_ip 10.0.1.13 udp dst_port 53        port 1-24 permit
+config access_profile profile_id 2  add access_id 2  ip  destination_ip 10.0.1.24 udp dst_port 53        port 1-24 permit
+config access_profile profile_id 2  add access_id 3  ip  destination_ip 10.0.1.7 udp dst_port 53        port 1-24 permit
+config access_profile profile_id 2  add access_id 4  ip  destination_ip 10.0.1.52 udp dst_port 53        port 1-24 permit
+
+
+create access_profile  ip  destination_ip 255.255.255.255  profile_id 3
+config access_profile profile_id 3  add access_id 1  ip  destination_ip 10.8.128.1 port 1-24 permit
+
+create access_profile  ip  source_ip 255.255.255.128    profile_id 4
+config access_profile profile_id 4  add access_id 1  ip  source_ip 10.8.135.0 port 1-24 deny
+
+
+save
+
+
+

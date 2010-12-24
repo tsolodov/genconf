@@ -1,0 +1,13 @@
+
+config stp version mstp
+config stp priority 40960 instance_id 0
+config stp hellotime 2
+config stp lbd enable
+config stp lbd_recover_timer 60
+config stp ports 1-24 externalCost auto edge false p2p auto state disable
+config stp ports 1-24 lbd enable
+config stp mst_ports 1-28 instance_id 0 internalCost auto priority 128
+config stp ports 1-28 fbpdu disable
+config stp ports 25-28 externalCost auto edge false p2p auto state enable
+enable stp
+

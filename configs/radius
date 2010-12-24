@@ -1,0 +1,24 @@
+
+create authen server_host 1.1.1.1 protocol radius port 1812 key "1111" timeout 5 retransmit 2
+config authen server_group radius delete server_host 1.1.1.1 protocol radius
+create authen server_host 2.2.2.2 protocol radius port 1812 key "2222" timeout 5 retransmit 2
+config authen server_group radius delete server_host 2.2.2.2 protocol radius
+config authen server_group radius add server_host 1.1.1.1 protocol radius
+config authen server_group radius add server_host 2.2.2.2 protocol radius
+config authen_login default method local
+create authen_login method_list_name RADIUS
+config authen_login method_list_name RADIUS method radius local
+config authen_enable default method  local_enable
+config authen application console login default
+config authen application console enable default
+config authen application telnet login method_list_name RADIUS
+config authen application telnet enable default
+config authen application ssh login method_list_name RADIUS
+config authen application ssh enable default
+config authen application http login method_list_name RADIUS
+config authen application http enable default
+config authen parameter response_timeout 30
+config authen parameter attempt 3
+enable authen_policy
+
+

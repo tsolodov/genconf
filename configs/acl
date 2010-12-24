@@ -1,0 +1,18 @@
+
+create access_profile  ip  destination_ip 255.255.255.255 tcp dst_port 0xFFFF    profile_id 1
+config access_profile profile_id 1  add access_id 1  ip  destination_ip 1.1.1.1  tcp dst_port 80        port 1-24 permit 
+
+
+create access_profile  ip  destination_ip 255.255.255.255 udp dst_port 0xFFFF    profile_id 2
+config access_profile profile_id 2  add access_id 1  ip  destination_ip 10.0.1.13 udp dst_port 53        port 1-24 permit
+config access_profile profile_id 2  add access_id 2  ip  destination_ip 10.0.1.24 udp dst_port 53        port 1-24 permit
+config access_profile profile_id 2  add access_id 3  ip  destination_ip 10.0.1.7 udp dst_port 53        port 1-24 permit
+config access_profile profile_id 2  add access_id 4  ip  destination_ip 10.0.1.52 udp dst_port 53        port 1-24 permit
+
+
+create access_profile  ip  destination_ip 255.255.255.255  profile_id 3
+config access_profile profile_id 3  add access_id 1  ip  destination_ip _Ugate_ port 1-24 permit
+
+create access_profile  ip  source_ip _Uunknownpoolmask_    profile_id 4
+config access_profile profile_id 4  add access_id 1  ip  source_ip _Uunknownpoolnet_ port 1-24 deny
+

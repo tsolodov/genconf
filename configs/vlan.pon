@@ -1,0 +1,7 @@
+
+config vlan default delete 1-28
+config vlan default add untagged 1-28
+config vlan default advertisement enable
+create vlan Control tag _SWcontroltag_
+config vlan Control add tagged 25-28
+

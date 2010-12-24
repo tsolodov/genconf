@@ -1,0 +1,5 @@
+
+config ipif System vlan Control ipaddress _IPADDR/_SW_MASK_LEN state enable
+create iproute default _SWgate_
+
+
